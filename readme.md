@@ -1,6 +1,6 @@
 # Route Magic
 
-Route Magic is a simple and fast Nodejs module to abstract away the unnessary route invocations in the widely popular [Expressjs framework] (https://github.com/expressjs/express). This module has no dependencies.
+Route Magic is a simple and fast Nodejs module to abstract away the unnessary route invocations in the widely popular [Expressjs framework] (https://github.com/expressjs/express). Route magic will invoke your routings based on the standard folder structure. This module has no dependencies.
 
 ## Say Goodbye To This
 
@@ -25,6 +25,32 @@ magic.use(app, __dirname, '[your route directory]')
 
 ```
 npm install express-routemagic
+```
+
+## How Does It Map The Routings?
+
+Assuming the below file structure:
+
+```
+project-folder
+|--app
+|--routes
+|   |--nested-folder
+|   |   |--bar
+|   |   |   |--bar.js
+|   |   |--index.js
+|   |--index.js
+|   |--foo.js
+|--app.js
+```
+
+Invoking Route Magic inside of app.js is equivalent to the following:
+
+```js
+app.use('/', require('./routes/index.js'))
+app.use('/foo', require('./routes/foo.js'))
+app.use('/nested-folder', require('./routes/nested-folder/index.js'))
+app.use('/nested-folder/bar/bar', require('./routes/nested-folder/bar/bar.js')) // note the 2 bars here.
 ```
 
 ## Options
