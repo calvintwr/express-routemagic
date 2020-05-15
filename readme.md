@@ -1,6 +1,6 @@
 # Route Magic
 
-Route Magic is a simple and fast Nodejs module to abstract away the unnessary route invocations in the widely popular [Expressjs framework] (https://github.com/expressjs/express).
+Route Magic is a simple and fast Nodejs module to abstract away the unnessary route invocations in the widely popular [Expressjs framework] (https://github.com/expressjs/express). This module has no dependencies.
 
 ## Say Goodbye To This
 
@@ -18,7 +18,7 @@ This is the most basic way to use Magic:
 
 ```js
 const magic = require('express-routemagic')
-magic.use(app, '[your route directory]')
+magic.use(app, __dirname, '[your route directory]')
 ```
 
 ## Installation
@@ -30,7 +30,7 @@ npm install express-routemagic
 ## Options
 
 ```js
-magic.use(app, {
+magic.use(app, __dirname, {
     routeFolder: './routes', // Mandatory
     debug: [ your own debug module ], // Optional
     printRoutes: true, // Optional. This prints out all your routes. If no debug module is passed, it uses console.log by default
@@ -44,7 +44,7 @@ magic.use(app, {
 ```js
 const debug = require('debug')('your:namespace:magic')
 
-magic.use(app, {
+magic.use(app, __dirname, {
     routeFolder: './routes', 
     debug: debug,
     printRoutes: true, 
@@ -55,7 +55,7 @@ magic.use(app, {
 You can also pass an array to `ignoreSuffix`:
 
 ```js
-magic.use(app, {
+magic.use(app, __dirname, {
     ignoreSuffix: ['_bak', '_old', '_dev']
 })
 ```

@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v0.0.1
+ * Express Route-Magic v0.0.3
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
@@ -112,7 +112,7 @@ Magic.toIgnore = function (payload, isDirectory) {
 
     let toIgnore = false
     this.ignoreSuffix.forEach(suffix => {
-        if (payload.indexOf(suffix) !== -1 && payload.indexOf(suffix) !== payload.length - suffix.length) {
+        if (payload.indexOf(suffix) !== -1 && payload.indexOf(suffix) === payload.length - suffix.length) {
             toIgnore = true
             return null
         }
