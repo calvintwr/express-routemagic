@@ -11,17 +11,21 @@ const path = require('path')
 
 const Magic = {}
 
-Magic.ignoreSuffix = []
-Magic.routeFolder = ''
+Magic.ignoreSuffix = null
+Magic.routeFolder = null
 Magic.allowSameName = false
 Magic.debug = console.log
 Magic.printRoutes = false
+Magic.invokerPath = null
 
-Magic.use = function (app, options) {
+Magic.use = function (app, invokerPath, options) {
 
     if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as first argument.')
 
     Magic.app = app
+
+    if (typeof invokerPath !== 'string') throw new Error('Invalid argument: The path of where you invoke magic must be a valid `string`. Typically it is `__dirname`.')
+    this.invokerPath = invokerPath
 
     if (typeof options === 'string') this.routeFolder = options
 
@@ -55,7 +59,7 @@ Magic.use = function (app, options) {
             this.printRoutes = true
         }
     }
-    this.scan(path.join(__dirname, this.routeFolder))
+    this.scan(path.join(invokerPath, this.routeFolder))
 }
 
 Magic.scan = function (directory) {
@@ -125,16 +129,18 @@ Magic.checkConflict = function (files, folders, directory) {
 
 Magic.require = function (directory, files) {
 
-    let apiPath = directory.replace(path.join(__dirname, this.routeFolder), '') + '/'
+    let apiPath = directory.replace(path.join(this.invokerPath, this.routeFolder), '') + '/'
 
     files.forEach(file => {
         if (file === 'index.js') {
-            this.app.use(apiPath, require(path.join(directory, file).replace(__dirname, '.')))
-            if (this.printRoutes) this.debug(apiPath + ' => ' + path.join(directory, file).replace(__dirname, '.'))
+            let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
+            this.app.use(apiPath, require('./../..' + pathRelativeToInvoker))
+            if (this.printRoutes) this.debug(apiPath + ' => ' + path.join(directory, file).replace(this.invokerPath, '.'))
         } else {
+            let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
             let subPath = apiPath + file.replace('.js', '')
-            this.app.use(subPath, require(path.join(directory, file).replace(__dirname, '.')))
-            if (this.printRoutes) this.debug(subPath + ' => ' + path.join(directory, file).replace(__dirname, '.'))
+            this.app.use(subPath, require('./../..' + pathRelativeToInvoker))
+            if (this.printRoutes) this.debug(subPath + ' => ' + path.join(directory, file).replace(this.invokerPath, '.'))
         }
     })
 }
