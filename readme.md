@@ -6,8 +6,8 @@ Route Magic is a simple and fast Nodejs module to abstract away the unnessary ro
 
 ```js
 app.use('/', require('./routes/index'))
-app.use('/somePath', require('./routes/somePath))
-app.use('/i/keep/repeating/myself', require('./routes/i/keep/repeating/myself))
+app.use('/somePath', require('./routes/somePath'))
+app.use('/i/keep/repeating/myself', require('./routes/i/keep/repeating/myself'))
 ```
 
 This does not make sense at all.
