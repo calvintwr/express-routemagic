@@ -1,6 +1,6 @@
 {
   "name": "express-routemagic",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A simple and fast module to automatically require all your express routes without bloating your code without `app.use('i/will/repeat/this', require('./i/will/repeat/this')`.",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "require"
   ],
   "author": "calvintwr",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/calvintwr/express-routemagic/issues"
   },

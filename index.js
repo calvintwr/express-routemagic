@@ -20,11 +20,11 @@ Magic.invokerPath = null
 
 Magic.use = function (app, invokerPath, options) {
 
-    if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as first argument.')
+    if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
 
     Magic.app = app
 
-    if (typeof invokerPath !== 'string') throw new Error('Invalid argument: The path of where you invoke magic must be a valid `string`. Typically it is `__dirname`.')
+    if (typeof invokerPath !== 'string') throw new Error('Invalid argument: The path of where you invoked magic must be a valid `string` and passed in as 2nd argument. Typically it is `__dirname`.')
     this.invokerPath = invokerPath
 
     if (typeof options === 'string') this.routeFolder = options
@@ -32,7 +32,7 @@ Magic.use = function (app, invokerPath, options) {
     if (typeof options === 'object') {
 
         if (!options.routeFolder || typeof options.routeFolder !== 'string') {
-            throw new Error('Invalid argument: `options.routeFolder` must be a valid `string`.')
+            throw new Error('Invalid argument: `routeFolder` must be a valid `string`.')
         }
         this.routeFolder = options.routeFolder
 
@@ -42,20 +42,20 @@ Magic.use = function (app, invokerPath, options) {
             } else if (Array.isArray(options.ignoreSuffix)) {
                 this.ignoreSuffix = options.ignoreSuffix
             } else {
-                throw new Error('`Invalid argument`: `options.ignoreSuffix` must either be `string` or `array`.')
+                throw new Error('`Invalid argument`: `ignoreSuffix` must either be `string` or `array`.')
             }
 
         }
 
         if (options.allowSameName) {
-            if (typeof options.allowSameName !== 'boolean') throw new Error('Invalid argument: `options.allowSameName` must be a valid `boolean`.')
+            if (typeof options.allowSameName !== 'boolean') throw new Error('Invalid argument: `allowSameName` must be a valid `boolean`.')
             this.allowSameName = true
         }
 
         if (options.debug) this.debug = options.debug
 
         if (options.printRoutes) {
-            if (typeof options.printRoutes !== 'boolean') throw new Error('Invalid argument: `options.printRoutes` must be a valid `boolean`.')
+            if (typeof options.printRoutes !== 'boolean') throw new Error('Invalid argument: `printRoutes` must be a valid `boolean`.')
             this.printRoutes = true
         }
     }

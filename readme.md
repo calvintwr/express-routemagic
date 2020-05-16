@@ -1,6 +1,9 @@
 # Route Magic
+[![npm version](https://img.shields.io/npm/v/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
+[![license](https://img.shields.io/npm/l/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
+[![install size](https://packagephobia.now.sh/badge?p=express-routemagic)](https://packagephobia.now.sh/result?p=express-routemagic)
 
-Route Magic is a simple and fast Nodejs module to abstract away the unnessary route invocations in the widely popular [Expressjs framework] (https://github.com/expressjs/express). Route magic will invoke your routings based on the standard folder structure. This module has no dependencies.
+Route Magic is a simple and fast Nodejs module to abstract away the unnecessary route invocations in the widely popular [Expressjs framework](https://github.com/expressjs/express). Route Magic will invoke your routings based on a standard folder structure. It keeps express clean and simple, exactly like how it should be. This module has no dependencies.
 
 ## Say Goodbye To This
 
@@ -18,7 +21,7 @@ This is the most basic way to use Magic:
 
 ```js
 const magic = require('express-routemagic')
-magic.use(app, __dirname, '[your route directory]')
+magic.use(app, __dirname, '[your route directory]') // 'routes' is same as './routes', or './../routes' is same as '../routes'
 ```
 
 ## Installation
@@ -64,6 +67,42 @@ magic.use(app, __dirname, {
     ignoreSuffix: string or array, // Optional. Allows you to skip folders or files with a suffix.
 })
 ```
+Note: It is recommended to enable `printRoutes` to check your routings when you are getting started. The sequence which the routes are printed reflects sequence the routes are invoked. In general, for any given folder, it will invoke `index.js`, followed by other `js` in alphabetical order, followed by folders in alphabetical order.
+
+### Routing Ordering Gotcha (a.k.a Express routing codesmells)
+
+The order of Express middleware (routings are middlewares as well) matters. But good express routing practices will negate surprises. An example of bad express routing practices that can spring surprise on you, whether you switch to Magic, or if you later re-organise/rename your folders:
+
+```js
+router.get('/:param', (req, res) => {
+    // this should be avoided because this can block all routes invoked below it if it's invoked before them.
+})
+
+// these will never get called
+router.get('/foo', (req, res) => { ... })
+router.get('/bar', (req, res) => { ... })
+```
+
+Instead, stick to the below and you will be fine:
+
+```js
+router.get('/unique-name/:param', (req, res) => {
+    // `unique-name` should be a terminal route, meaning it will not have any subpath under it.
+
+    // it should also not share any name with other folders names that sits on the same level with its containing file.
+    // i.e., any other folders that sits on the same level as the file that contains this `unique-name` route, should not have the name `unique-name`.
+
+    // |-- i-dont-have-the-same-unique-name
+    // |    |-- index.js
+    // |
+    // |-- the-file-that-contains-the-route-with-unique-name.js
+
+})
+
+// these will get called
+router.get('/foo', (req, res) => { ... })
+router.get('/bar', (req, res) => { ... })
+```
 
 ## More Examples
 
@@ -71,9 +110,9 @@ magic.use(app, __dirname, {
 const debug = require('debug')('your:namespace:magic')
 
 magic.use(app, __dirname, {
-    routeFolder: './routes', 
+    routeFolder: './routes',
     debug: debug,
-    printRoutes: true, 
+    printRoutes: true,
     ignoreSuffix: '_bak' // Will ignore files like 'index_bak.js' or folders like 'api_v1_bak'.
 })
 ```
