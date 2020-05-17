@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v0.0.3
+ * Express Route-Magic v0.2.0
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
@@ -8,62 +8,129 @@
 // modules
 const fs = require('fs')
 const path = require('path')
+const util = require('util')
 
-const Magic = {}
-
-Magic.ignoreSuffix = null
-Magic.routeFolder = null
-Magic.allowSameName = false
-Magic.debug = console.log
-Magic.printRoutes = false
-Magic.invokerPath = null
-
-Magic.use = function (app, invokerPath, options) {
-
-    if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
-
-    Magic.app = app
-
-    if (typeof invokerPath !== 'string') throw new Error('Invalid argument: The path of where you invoked magic must be a valid `string` and passed in as 2nd argument. Typically it is `__dirname`.')
-    this.invokerPath = invokerPath
-
-    if (typeof options === 'string') this.routeFolder = options
-
-    if (typeof options === 'object') {
-
-        if (!options.routeFolder || typeof options.routeFolder !== 'string') {
-            throw new Error('Invalid argument: `routeFolder` must be a valid `string`.')
-        }
-        this.routeFolder = options.routeFolder
-
-        if (options.ignoreSuffix) {
-            if (typeof options.ignoreSuffix === 'string') {
-                this.ignoreSuffix = [options.ignoreSuffix]
-            } else if (Array.isArray(options.ignoreSuffix)) {
-                this.ignoreSuffix = options.ignoreSuffix
-            } else {
-                throw new Error('`Invalid argument`: `ignoreSuffix` must either be `string` or `array`.')
-            }
-
-        }
-
-        if (options.allowSameName) {
-            if (typeof options.allowSameName !== 'boolean') throw new Error('Invalid argument: `allowSameName` must be a valid `boolean`.')
-            this.allowSameName = true
-        }
-
-        if (options.debug) this.debug = options.debug
-
-        if (options.printRoutes) {
-            if (typeof options.printRoutes !== 'boolean') throw new Error('Invalid argument: `printRoutes` must be a valid `boolean`.')
-            this.printRoutes = true
-        }
-    }
-    this.scan(path.join(invokerPath, this.routeFolder))
+// defaults
+const Magic = {
+    _moduleName: 'express-routemagic',
+    _routesFolder: 'routes',
+    _allowSameName: false,
+    _debug: console.log,
+    _logMapping: false
 }
 
-Magic.scan = function (directory) {
+// properties that require getters and setters
+Object.defineProperties(Magic, {
 
+    invokerPath: {
+        get() {
+            return this._invokerPath
+        },
+        set(val) {
+            let fail = _argFail('string', val, 'invokerPath', 'The path of where you invoked magic must be a valid `string` and passed in as 2nd argument. Typically it is `__dirname`.')
+            if (fail) throw new Error(fail)
+            this._invokerPath = val
+        }
+    },
+
+    routesFolder: {
+        get() {
+            return this._routesFolder
+        },
+        set(val) {
+            let fail = _argFail('string', val, 'routesFolder', 'This value defaults to \'routes\'. If you change your folder structure to follow you won\'t need this option.')
+            if (fail) throw new Error(fail)
+            this._routesFolder = val
+        }
+    },
+
+    ignoreSuffix: {
+        get() {
+            return this._ignoreSuffix
+        },
+        set(val) {
+            let fail = _argFail(['string', 'array'], val, 'ignoreSuffix')
+            if (fail) throw new Error(fail)
+            this._ignoreSuffix = Array.isArray(val) ? val : [val]
+        }
+    },
+
+    allowSameName: {
+        get() {
+            return this._allowSameName
+        },
+        set(val) {
+            let fail = _argFail('boolean', val, 'allowSameName')
+            if (fail) throw new Error(fail)
+            this._allowSameName = val
+        }
+    },
+
+    logMapping: {
+        get() {
+            return this._logMapping
+        },
+        set(val) {
+            let fail = _argFail('boolean', val, 'logMapping')
+            if (fail) throw new Error(fail)
+            this._logMapping = val
+        }
+    },
+
+    debug: {
+        get() {
+            return this._debug
+        },
+        set(val) {
+            let fail = _argFail('function', val, 'debug')
+            if (fail) throw new Error(fail)
+            this._debug = val
+        }
+    }
+})
+
+
+// methods
+Magic.use = function(app, invokerPath, options) {
+    if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
+
+    this.app = app
+    this.invokerPath = invokerPath
+
+    if (typeof options === 'string') this.routesFolder = options
+
+    if (typeof options === 'object') {
+        // may need debugging module downstream, so assign first.
+        if (options.debug) this.debug = options.debug
+
+        /* All BCs */
+
+        // BC >= 0.0.1, since 0.2.0
+        _depre({
+            options,
+            old: 'routeFolder',
+            new: 'routesFolder'
+        })
+
+        // BC >= 0.0.1, since 0.2.0
+        _depre({
+            options,
+            old: 'printRoutes',
+            new: 'logMapping'
+        })
+
+        _applyOpts(this, options, [
+            'routesFolder',
+            'ignoreSuffix',
+            'allowSameName',
+            'debug',
+            'logMapping'
+        ])
+    }
+    this.scan(path.join(invokerPath, this.routesFolder))
+}
+
+Magic.scan = function(directory) {
     let _folders = []
     let _files = []
 
@@ -82,13 +149,11 @@ Magic.scan = function (directory) {
         return (file.indexOf('.js') === file.length - '.js'.length)
 
     }).forEach(file => {
-
         if (file === 'index.js') {
             _files.unshift(file)
         } else {
             this.push(_files, file)
         }
-
     })
 
     this.checkConflict(_files, _folders, directory)
@@ -102,17 +167,14 @@ Magic.scan = function (directory) {
     })
 }
 
-Magic.push = function (array, payload, isDirectory) {
+Magic.push = function(array, payload, isDirectory) {
     if (!this.toIgnore(payload, isDirectory)) array.push(payload)
 }
 
-Magic.toIgnore = function (payload, isDirectory) {
-
+Magic.toIgnore = function(payload, isDirectory) {
     if (!isDirectory) payload = payload.replace('.js', '')
-    
     let toIgnore = false
-    
-    if(this.ignoreSuffix !== null){
+    if (this.ignoreSuffix) {
         this.ignoreSuffix.forEach(suffix => {
             if (payload.indexOf(suffix) !== -1 && payload.indexOf(suffix) === payload.length - suffix.length) {
                 toIgnore = true
@@ -120,33 +182,91 @@ Magic.toIgnore = function (payload, isDirectory) {
             }
         })
     }
-	
     return toIgnore
 }
 
-Magic.checkConflict = function (files, folders, directory) {
+Magic.checkConflict = function(files, folders, directory) {
     if (this.allowSameName) return false
     files.forEach(file => {
-        if (folders.indexOf(file.replace('.js', '')) !== -1) throw new Error('Folder and file with conflict name: `' + file.replace('.js', '') + '` in directory: `' + directory + '`.')
+        if (folders.indexOf(file.replace('.js', '')) !== -1) throw new Error(`Folder and file with conflict name: \`${file.replace('.js', '')}\` in directory: \`${directory}\`.`)
     })
 }
 
-Magic.require = function (directory, files) {
-
-    let apiPath = directory.replace(path.join(this.invokerPath, this.routeFolder), '') + '/'
-
+Magic.require = function(directory, files) {
+    let apiPath = directory.replace(path.join(this.invokerPath, this.routesFolder), '') + '/'
     files.forEach(file => {
-        if (file === 'index.js') {
-            let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
-            this.app.use(apiPath, require('./../..' + pathRelativeToInvoker))
-            if (this.printRoutes) this.debug(apiPath + ' => ' + path.join(directory, file).replace(this.invokerPath, '.'))
-        } else {
-            let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
-            let subPath = apiPath + file.replace('.js', '')
-            this.app.use(subPath, require('./../..' + pathRelativeToInvoker))
-            if (this.printRoutes) this.debug(subPath + ' => ' + path.join(directory, file).replace(this.invokerPath, '.'))
-        }
+        let subPath = (file === 'index.js') ? apiPath : apiPath + file.replace('.js', '')
+        let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
+
+        this.app.use(subPath, require('./../..' + pathRelativeToInvoker))
+        if (this.logMapping) this.debug(subPath + ' => .' + pathRelativeToInvoker)
     })
+}
+
+// localised helpers
+function _argFail(expect, got, name, note) {
+    if (!Array.isArray(expect)) expect = [expect]
+    got = _type(got)
+    if (_found(got)) return false
+    return _msg()
+
+    function _found(got) {
+        let found = expect.find(el => _vet(el) === got)
+        return typeof found !== 'undefined'
+    }
+
+    function _msg() {
+        let msg = 'Invalid Argument'
+        msg += name ? ' ' + name : ''
+        msg += `: Expect type ${_list(expect)} but got \`${got}\`.`
+        msg += note ? ` Note: ${note}` : ''
+        return msg
+    }
+
+    function _vet(el) {
+        const valid = [
+            'string',
+            'number',
+            'array',
+            'object',
+            'function',
+            'boolean',
+            'null',
+            'undefined'
+            // no support for symbol. should we care?
+        ]
+        if (typeof el !== 'string') throw new Error(`Internal error: Say what you expect to check in string. Not ${el} with type \`${typeof el}\`.`)
+        if (valid.indexOf(el) === -1) throw new Error(`Internal error: \`${el}\` is not a valid type to check for. Please use only ${_list(valid)}.`)
+        return el
+    }
+
+    function _list(array) {
+        return array.map(el => {
+            return `\`${el}\``
+        }).join(' or ')
+    }
+
+    // get rid of all the problems typeof [] is `object`.
+    function _type(got) {
+        if (typeof got !== 'object') return typeof got
+        if (Array.isArray(got)) return 'array'
+        if (got === null) return 'null'
+        return 'object'
+    }
+}
+
+function _applyOpts(obj, opts, props) {
+    props.forEach(prop => {
+        if (opts[prop] !== undefined) obj[prop] = opts[prop]
+    })
+}
+
+function _depre(obj) {
+    if (typeof obj.options[obj.old] !== 'undefined') {
+        util.deprecate(() => {
+            obj.options[obj.new] = obj.options[obj.old]
+        }, `\`${obj.old}\` is deprecated. Please use \`${obj.new}\` instead.`)()
+    }
 }
 
 module.exports = Object.create(Magic)
