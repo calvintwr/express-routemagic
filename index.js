@@ -109,14 +109,18 @@ Magic.push = function (array, payload, isDirectory) {
 Magic.toIgnore = function (payload, isDirectory) {
 
     if (!isDirectory) payload = payload.replace('.js', '')
-
+    
     let toIgnore = false
-    this.ignoreSuffix.forEach(suffix => {
-        if (payload.indexOf(suffix) !== -1 && payload.indexOf(suffix) === payload.length - suffix.length) {
-            toIgnore = true
-            return null
-        }
-    })
+    
+    if(this.ignoreSuffix !== null){
+        this.ignoreSuffix.forEach(suffix => {
+            if (payload.indexOf(suffix) !== -1 && payload.indexOf(suffix) === payload.length - suffix.length) {
+                toIgnore = true
+                return null
+            }
+        })
+    }
+	
     return toIgnore
 }
 
