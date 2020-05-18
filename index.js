@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v1.0.1
+ * Express Route-Magic v1.0.2
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
