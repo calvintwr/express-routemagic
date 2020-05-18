@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v0.2.0
+ * Express Route-Magic v1.0.1
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
@@ -40,6 +40,7 @@ Object.defineProperties(Magic, {
         set(val) {
             let fail = _argFail('string', val, 'routesFolder', 'This value defaults to \'routes\'. If you change your folder structure to follow you won\'t need this option.')
             if (fail) throw new Error(fail)
+            if (val[val.length - 1] === '/') val = val.substring(0, val.length - 1)
             this._routesFolder = val
         }
     },
@@ -89,7 +90,6 @@ Object.defineProperties(Magic, {
     }
 })
 
-
 // methods
 Magic.use = function(app, invokerPath, options) {
     if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
@@ -127,7 +127,7 @@ Magic.use = function(app, invokerPath, options) {
             'logMapping'
         ])
     }
-    this.scan(path.join(invokerPath, this.routesFolder))
+    this.scan(this.absolutePathToRoutesFolder())
 }
 
 Magic.scan = function(directory) {
@@ -192,15 +192,30 @@ Magic.checkConflict = function(files, folders, directory) {
     })
 }
 
-Magic.require = function(directory, files) {
-    let apiPath = directory.replace(path.join(this.invokerPath, this.routesFolder), '') + '/'
+Magic.require = function(dir, files) {
+    let apiDirectory = this.apiDirectory(dir)
     files.forEach(file => {
-        let subPath = (file === 'index.js') ? apiPath : apiPath + file.replace('.js', '')
-        let pathRelativeToInvoker = path.join(directory, file).replace(this.invokerPath, '')
-
-        this.app.use(subPath, require('./../..' + pathRelativeToInvoker))
-        if (this.logMapping) this.debug(subPath + ' => .' + pathRelativeToInvoker)
+        let apiPath = this.apiPath(file, apiDirectory)
+        this.app.use(apiPath, require(this.absolutePathFile(dir, file)))
+        if (this.logMapping) this.debug(apiPath + ' => .' + this.pathRelativeToInvoker(dir, file))
     })
+}
+
+Magic.apiDirectory = function(dir) {
+    let apiDir = path.relative(this.absolutePathToRoutesFolder(), dir)
+    return (apiDir.length === 0) ? '/' : '/' + apiDir
+}
+Magic.apiPath = function(file, apiDir) {
+    return (file === 'index.js') ? apiDir : path.join(apiDir, file.replace('.js', ''))
+}
+Magic.absolutePathToRoutesFolder = function() {
+    return path.join(this.invokerPath, this.routesFolder)
+}
+Magic.absolutePathFile = function(dir, file) {
+    return path.join(dir, file)
+}
+Magic.pathRelativeToInvoker = function (dir, file) {
+    return path.join(path.relative(this.invokerPath, dir), file)
 }
 
 // localised helpers

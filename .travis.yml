@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "node"
+  - "12"
+  - "16"
+  - "3"
+
+install:
+  - npm install
+
+script: npm test
