@@ -1,7 +1,8 @@
 # Route Magic
 [![npm version](https://img.shields.io/npm/v/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
+[![Build Status](https://badgen.net/travis/calvintwr/express-routemagic?style=flat-square)](https://travis-ci.com/calvintwr/express-routemagic)
 [![license](https://img.shields.io/npm/l/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
-[![install size](https://packagephobia.now.sh/badge?p=express-routemagic)](https://packagephobia.now.sh/result?p=express-routemagic)
+[![install size](https://badgen.net/packagephobia/install/express-routemagic?style=flat-square)](https://packagephobia.now.sh/result?p=express-routemagic)
 
 Route Magic is a simple and fast Nodejs module, a routing "implement-and-forget" that every app using the widely popular [Expressjs framework](https://github.com/expressjs/express) should have, because **is almost always true that your routing code folder structure is your intended api URI structure, and Route Magic will invoke your routings based on your folder structure**. It keeps express clean and simple, exactly like how it should be. This module has no dependencies.
 
