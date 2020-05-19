@@ -13,6 +13,44 @@ describe('routesFolder', () => {
     })
 })
 
+describe('ignoreSuffix', () => {
+    let magic_ignoreSuffix = Object.create(magic)
+    it('should make string become array', () => {
+        magic_ignoreSuffix.ignoreSuffix = 'test'
+        magic_ignoreSuffix.ignoreSuffix.should.be.an('array').have.lengthOf(1).have.members(['test'])
+    })
+})
+
+describe('use', () => {
+    it('should throw error if no app (1st argument) is passed in', () => {
+        (()=> {
+            magic.use()
+        }).should.Throw(Error, 'Invalid argument: Express `app` instance must be passed in as 1st argument.')
+    })
+    it('should throw error if no invokerPath (2nd argument) is passed in', () => {
+        (()=> {
+            magic.use(function(){})
+        }).should.Throw(Error, 'Invalid argument: You must provided the path where you invoked magic as a `string` as 2nd argument. Typically it is `__dirname`.')
+    })
+    it('should accept 3rd argument as routesFolder if it is a `string`', () => {
+        let magic_use = Object.create(magic)
+        try { magic_use.use(function(){}, __dirname, 'testFolder') } catch (error) {}
+        magic_use.routesFolder.should.equal('testFolder')
+    })
+    it('should accept 3rd argument as object', () => {
+        let magic_use = Object.create(magic)
+        let debug = function () {}
+        let options = {
+            ignoreSuffix: ['test1', 'test2'],
+            allowSameName: true,
+            debug,
+            logMapping: true
+        }
+        try { magic_use.use(function(){}, __dirname, options) } catch (error) {}
+        magic_use.should.deep.include({ routesFolder: 'routes' })
+    })
+})
+
 describe('push', () => {
     it('should push payload into array', () => {
         let array = []
