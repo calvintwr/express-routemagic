@@ -4,9 +4,11 @@
 [![license](https://img.shields.io/npm/l/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
 [![install size](https://badgen.net/packagephobia/install/express-routemagic?style=flat-square)](https://packagephobia.now.sh/result?p=express-routemagic)
 
-Route Magic is a simple and fast Nodejs module, a routing "implement-and-forget" that every app using the widely popular [Expressjs framework](https://github.com/expressjs/express) should have, because **is almost always true that your routing code folder structure is your intended api URI structure, and Route Magic will invoke your routings based on your folder structure**. It keeps express clean and simple, exactly like how it should be. This module has no dependencies.
+>Route Magic is a simple and fast Nodejs module -- a routing "implement-and-forget" sugar that every app using the widely popular [Expressjs framework](https://github.com/expressjs/express) should have.
 
-Route Magic是一个简单而又快速的Nodejs模块。它可自动化广泛使用的[Expressjs框架](https://github.com/expressjs/express）的路由图，因为**您的路由文件夹结构几乎都是您想要的API URI结构。Route Magic将根据您的文件夹结构自动调用路由。** 它保持 Express 简洁几明了的结构。该模块不依赖其它模块。
+**Why? Because your routes folder structure is almost always your intended api URI structure, therefore it ought to be automatic, but it hasn't been. So Route Magic will do just that: invoke your routings based on file structure**. Drastically reduce unnecessary code -- keep your express app clean and simple, exactly like how it should be. This module has no dependencies.
+
+Route Magic是一个简单而又快速的Nodejs模块。它可自动化广泛使用的[Expressjs框架](https://github.com/expressjs/express)的路由图，因为**您的路由文件夹结构几乎都是您想要的API URI结构。Route Magic将根据您的文件夹结构自动调用路由。** 它保持 Express 简洁几明了的结构。该模块不依赖其它模块。
 
 ## Installation
 
@@ -15,24 +17,50 @@ npm install express-routemagic
 ```
 For example, go [here](https://github.com/calvintwr/express-routemagic-eg).
 
-## Say Goodbye To This
+## Usage
+
+```js
+// this file is app.js
+const magic = require('express-routemagic')
+magic.use(app, __dirname) 
+// Note: this assumes your routing files to be in `./routes` relative to this file that invoked it.
+```
+That's it! Continue to code everything else and let Magic take care of requiring your routes.
+(Note: Scroll to bottom for much more options.)
+
+## Prologue
+The author's express app was simple at first. Everything seemed complete, nothing more was desired. But very quickly, it grew, and something felt amiss: the oddly familiar muscle reflex in performing ctrl c and p...
 
 ```js
 app.use('/', require('./routes/index'))
 app.use('/somePath', require('./routes/somePath'))
 app.use('/i/keep/repeating/myself', require('./routes/i/keep/repeating/myself'))
+... many more lines of repetitive code you wondered what for?
 ```
+With every line, came the thought: “It's just one more”. But that didn't end; with each line, crept closer something, a mumbling perhaps at first, until inevitably came it's crescendo: 
 
-This does not make sense at all.
+>This doesn't make sense anymore.
+
+**_This was how Magic was born._**
 
 ## Say Hello To This
 
-This is the most basic way to use Magic:
+You already organised your files. So make that work for you:
 
 ```js
-const magic = require('express-routemagic')
-magic.use(app, __dirname) // this assumes that your routing files are in `routes`, relative to where you invoke this.
+magic.use(app, __dirname, {
+    routesFolder: './routes', // Optional
+    debug: [ your own debug module ], // Optional
+    logMapping: true, // Optional. This prints out all your routes. If no debug module is passed, it uses console.log by default
+    allowSameName: false, // Optional. `false` by default, i.e. you should not have a `foo.js` and a folder named `foo` sitting at the same level. That's poor organisation.
+    ignoreSuffix: string or array, // Optional. Allows you to skip folders or files with a suffix.
+})
 ```
+Note: It is recommended to enable `logMapping` to check your routings when you are getting started. The sequence which the routes are printed reflects sequence the routes are invoked. In general, for any given folder, it will invoke `index.js`, followed by other same-level `js` files in alphabetical order, followed by same-level folders (including its nested folders) in alphabetical order.
+
+To get started, you can use an [Express App Generator](https://expressjs.com/en/starter/generator.html) to create a default Express app, and modify the `app.js`.
+
+Or you can see an example [here](https://github.com/calvintwr/express-routemagic-eg).
 
 If your files are not in a default `routes` folder, then do this:
 ```js
@@ -40,7 +68,7 @@ const magic = require('express-routemagic')
 magic.use(app, __dirname, '[your route directory]') // 'folder' is same as './folder'
 ```
 
-## How Does It Map The Routings?
+## Further Reading - How Does It Map The Routings?
 
 See an example app [here](https://github.com/calvintwr/express-routemagic-eg).
 
@@ -60,12 +88,11 @@ project-folder
 |   |--foo.js
 |--app.js
 ```
-Route Magic is aware of your folder structure. Invoking Route Magic inside of `app.js`:
+Route Magic is aware of your folder structure. Invoking Route Magic inside of `app.js` like this:
 
 ```js
 magic.use(app, __dirname)
 ```
-
  is equivalent of helping you do all these below:
 ```js
 app.use('/', require('./routes/index.js'))
@@ -75,28 +102,26 @@ app.use('/nested-folder/bar/bar', require('./routes/nested-folder/bar/bar.js')) 
 ```
 
 ### Recommended route files syntax
-Each of your route `js` files should follow the following syntax:
+Per a default app generated by `express-generator`, each of your route `js` files should follow the following syntax:
+
+**ES6 syntax**
 ```js
 'use strict'
-const router = require('express').Router()
+const router = require('express').Router() // still retained #require instead of #import due practicable compatibility.
 
 router.get('/', (req, res) => { res.send('You are in the root directory of this file.') })
 module.exports = router
 ```
-Note that '/' is always relative to the file structure. So if the above file is `routes/nested-folder/index.js`, the URL will be `https://domain:port/nested-folder`.
-
-## Magic Options
-
+**ES5 syntax**
 ```js
-magic.use(app, __dirname, {
-    routesFolder: './routes', // Optional
-    debug: [ your own debug module ], // Optional
-    logMapping: true, // Optional. This prints out all your routes. If no debug module is passed, it uses console.log by default
-    allowSameName: false, // Optional. `false` by default, i.e. you should not have a `foo.js` and a folder named `foo` sitting at the same level. That's poor organisation.
-    ignoreSuffix: string or array, // Optional. Allows you to skip folders or files with a suffix.
-})
+'use strict'
+var router = require('express').Router()
+
+router.get('/', function(req, res) { res.send('You are in the root directory of this file.') })
+module.exports = router
 ```
-Note: It is recommended to enable `logMapping` to check your routings when you are getting started. The sequence which the routes are printed reflects sequence the routes are invoked. In general, for any given folder, it will invoke `index.js`, followed by other same-level `js` files in alphabetical order, followed by same-level folders (including its nested folders) in alphabetical order.
+
+Note that '/' is always relative to the file structure. So if the above file is `routes/nested-folder/index.js`, the URL will be `https://domain:port/nested-folder`.
 
 ### Routing Ordering Gotcha (a.k.a Express routing codesmells)
 
