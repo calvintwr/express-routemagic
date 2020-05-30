@@ -27,17 +27,13 @@ describe('use', () => {
             magic.use()
         }).should.Throw(Error, 'Invalid argument: Express `app` instance must be passed in as 1st argument.')
     })
-    it('should throw error if no invokerPath (2nd argument) is passed in', () => {
-        (()=> {
-            magic.use(function(){})
-        }).should.Throw(Error, 'Invalid argument: You must provided the path where you invoked magic as a `string` as 2nd argument. Typically it is `__dirname`.')
-    })
-    it('should accept 3rd argument as routesFolder if it is a `string`', () => {
+
+    it('should accept 2nd argument as routesFolder if it is a `string`', () => {
         let magic_use = Object.create(magic)
-        try { magic_use.use(function(){}, __dirname, 'testFolder') } catch (error) {}
+        try { magic_use.use(function(){}, 'testFolder') } catch (error) {}
         magic_use.routesFolder.should.equal('testFolder')
     })
-    it('should accept 3rd argument as object', () => {
+    it('should accept 2nd argument as object', () => {
         let magic_use = Object.create(magic)
         let debug = function () {}
         let options = {
@@ -46,8 +42,17 @@ describe('use', () => {
             debug,
             logMapping: true
         }
-        try { magic_use.use(function(){}, __dirname, options) } catch (error) {}
+        try { magic_use.use(function(){}, options) } catch (error) {}
         magic_use.should.deep.include({ routesFolder: 'routes' })
+    })
+})
+
+describe('scan', () => {
+    let directory = path.join(__dirname, './../../', 'folder-not-exist')
+    it('should throw error if routes directory does not exist', () => {
+        (()=> {
+            magic.scan(directory)
+        }).should.Throw(Error, `Routes folder not found in: ${directory}`)
     })
 })
 

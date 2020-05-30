@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/npm/l/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
 [![install size](https://badgen.net/packagephobia/install/express-routemagic?style=flat-square)](https://packagephobia.now.sh/result?p=express-routemagic)
 
->Route Magic is a simple and fast Nodejs module -- a routing "implement-and-forget" sugar that every app using the widely popular [Expressjs framework](https://github.com/expressjs/express) should have.
+>Route Magic is a simple and fast "implement-and-forget" routing module all Nodejs+Expressjs set ups should have.
 
 **Why? Because your routes folder structure is almost always your intended api URI structure, therefore it ought to be automatic, but it hasn't been. So Route Magic will do just that: invoke your routings based on file structure**. Drastically reduce unnecessary code -- keep your express app clean and simple, exactly like how it should be. This module has no dependencies.
 
@@ -23,8 +23,8 @@ For example, go [here](https://github.com/calvintwr/express-routemagic-eg).
 ```js
 // this file is app.js
 const magic = require('express-routemagic')
-magic.use(app, __dirname)
-// Note: this assumes your routing files to be in `./routes` relative to this file that invoked it.
+magic.use(app)
+// Note: this assumes your routing files to be in `./routes` relative to the ROOT of your nodejs app.
 ```
 That's it! Continue to code everything else and let Magic take care of requiring your routes.
 (Note: Scroll to bottom for much more options.)
@@ -49,15 +49,17 @@ With every line, came the thought: “It's just one more”. But that didn't end
 You already organised your files. So make that work for you:
 
 ```js
-magic.use(app, __dirname, {
-    routesFolder: './routes', // Optional
+// This shows all of magic's options
+magic.use(app, {
+    routesFolder: './routes', // Optional. If `invokerPath` is not defined, this is relative to your nodejs ROOT.
+    invokerPath: __dirname, // Optional. If this is defined, `routesFolder` will be relative to this path instead of your nodejs ROOT.
     debug: [ your own debug module ], // Optional
     logMapping: true, // Optional. This prints out all your routes. If no debug module is passed, it uses console.log by default
     allowSameName: false, // Optional. `false` by default, i.e. you should not have a `foo.js` and a folder named `foo` sitting at the same level. That's poor organisation.
-    ignoreSuffix: string or array, // Optional. Allows you to skip folders or files with a suffix.
+    ignoreSuffix: string or array // Optional. Allows you to skip folders or files with a suffix.
 })
 ```
-Note: When getting started, enable `logMapping` to check your routings. The sequence which the routes are printed reflects the sequence the routes are invoked. In general, for any given folder, it will invoke `index.js`, followed by other same-level `js` files in alphabetical order, followed by same-level folders (including its nested folders) in alphabetical order.
+Note: When getting started, enable `logMapping` to check your routings. The sequence which the routes are printed reflects the sequence the routes are invoked. **(Note:In general, for any given folder, it will invoke `index.js`, followed by other same-level `js` files in alphabetical order, followed by same-level folders (including its nested folders) in alphabetical order.)**
 
 To get started, you can generate a default Express app [using the CLI shipped by Express](https://expressjs.com/en/starter/generator.html) and modify its `app.js`.
 
@@ -65,7 +67,7 @@ Or you can see an example [here](https://github.com/calvintwr/express-routemagic
 
 If your files are not in a default `routes` folder, you can define it for Magic:
 ```js
-magic.use(app, __dirname, '[your relative routing directory]') // 'folder' is same as './folder'
+magic.use(app, '[your routing directory relative to nodejs root]') // 'folder' is same as './folder'
 ```
 
 ## Further Reading - How Does it Map the Routings?
@@ -90,7 +92,7 @@ project-folder
 ```
 Route Magic is aware of your folder structure. Invoking Route Magic inside of `app.js` like this:
 ```js
-magic.use(app, __dirname)
+magic.use(app)
 ```
 Is equivalent of doing all these automatically:
 ```js
@@ -157,7 +159,7 @@ router.get('/bar', (req, res) => { ... })
 ```js
 const debug = require('debug')('your:namespace:magic') // some custom logging module
 
-magic.use(app, __dirname, {
+magic.use(app, {
     routesFolder: './some-folder',
     debug: debug,
     logMapping: true,
@@ -167,7 +169,7 @@ magic.use(app, __dirname, {
 You can also pass an array to `ignoreSuffix`:
 
 ```js
-magic.use(app, __dirname, {
+magic.use(app, {
     ignoreSuffix: ['_bak', '_old', '_dev']
 })
 ```

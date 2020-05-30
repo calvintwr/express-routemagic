@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v1.0.3
+ * Express Route-Magic v2.0.0
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
@@ -16,7 +16,8 @@ const Magic = {
     _routesFolder: 'routes',
     _allowSameName: false,
     _debug: console.log,
-    _logMapping: false
+    _logMapping: false,
+    _invokerPath: path.join(__dirname, './../../')
 }
 
 // properties that require getters and setters
@@ -27,7 +28,7 @@ Object.defineProperties(Magic, {
             return this._invokerPath
         },
         set(val) {
-            let fail = hlp.argFail('string', val, 'invokerPath', 'The path of where you invoked magic must be a valid `string` and passed in as 2nd argument. Typically it is `__dirname`.')
+            let fail = hlp.argFail('string', val, 'invokerPath', 'The path of where you invoked magic must be a valid `string`. Typically it is `__dirname`.')
             if (fail) throw new Error(fail)
             this._invokerPath = val
         }
@@ -91,47 +92,39 @@ Object.defineProperties(Magic, {
 })
 
 // methods
-Magic.use = function(app, invokerPath, options) {
+Magic.use = function(app, relativeRoutesFolderOrOptions) {
     if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
     this.app = app
 
-    if(!invokerPath) throw new Error('Invalid argument: You must provided the path where you invoked magic as a `string` as 2nd argument. Typically it is `__dirname`.')
-    this.invokerPath = invokerPath
+    if (!hlp.argFail('string', relativeRoutesFolderOrOptions)) {
 
-    if (typeof options === 'string') this.routesFolder = options
+        this.routesFolder = relativeRoutesFolderOrOptions
 
-    if (typeof options === 'object') {
+    } else if (!hlp.argFail('object', relativeRoutesFolderOrOptions)) {
+
+        let options = relativeRoutesFolderOrOptions
+
         // may need debugging module downstream, so assign first.
         if (options.debug) this.debug = options.debug
-
-        /* All BCs */
-
-        // BC >= 0.0.1, since 0.2.0
-        hlp.optionsBC(options, {
-            old: 'routeFolder',
-            new: 'routesFolder'
-        })
-
-        // BC >= 0.0.1, since 0.2.0
-        hlp.optionsBC(options, {
-            old: 'printRoutes',
-            new: 'logMapping'
-        })
 
         hlp.applyOpts(this, options, [
             'routesFolder',
             'ignoreSuffix',
             'allowSameName',
             'debug',
-            'logMapping'
+            'logMapping',
+            'invokerPath'
         ])
     }
+
     this.scan(this.absolutePathToRoutesFolder())
 }
 
 Magic.scan = function(directory) {
     let _folders = []
     let _files = []
+
+    if (!fs.existsSync(directory)) throw new Error(`Routes folder not found in: ${directory}`)
 
     fs.readdirSync(directory).filter(file => {
 
@@ -205,6 +198,9 @@ Magic.apiDirectory = function(dir) {
     return (apiDir.length === 0) ? '/' : '/' + apiDir
 }
 Magic.apiPath = function(file, apiDir) {
+    // TODO: To support passing array to
+    // have to check whether the apiDir have any commas. if yes can indicate a ['/route1', '/route2'] kind.
+    // also need to check if file have any commans. if yes can indicate a ['/route1/filename1', '/route2/filename1', '/route1/filename2', '/route2/filename2'] kind of situation.
     return (file === 'index.js') ? apiDir : path.join(apiDir, file.replace('.js', ''))
 }
 Magic.absolutePathToRoutesFolder = function() {
