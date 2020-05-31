@@ -14,7 +14,7 @@ Route Magic是一个简单而又快速的Nodejs模块。它可自动化广泛使
 ## Installation
 
 ```
-npm install express-routemagic
+npm i express-routemagic --save
 ```
 For example, go [here](https://github.com/calvintwr/express-routemagic-eg).
 

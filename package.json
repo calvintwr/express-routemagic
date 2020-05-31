@@ -1,40 +1,46 @@
 {
-  "name": "express-routemagic",
-  "version": "2.0.0",
-  "description": "A simple and fast, fire-and-forget module that all Nodejs+Express app should have, to automatically require all your express routes without bloating your code with `app.use('i/will/repeat/this', require('./i/will/repeat/this')`. 把 Express 路由图给自动化。",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha './test/' --recursive --exit",
-    "cover": "istanbul cover _mocha -- './test/' --recursive --exit",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calvintwr/express-routemagic.git"
-  },
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "keywords": [
-    "express",
-    "router",
-    "automatic",
-    "require",
-    "路由",
-    "路由图"
-  ],
-  "author": "calvintwr",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/calvintwr/express-routemagic/issues"
-  },
-  "homepage": "https://github.com/calvintwr/express-routemagic#readme",
-  "dependencies": {},
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "coveralls": "^3.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^7.1.2",
-    "mocha-lcov-reporter": "^1.3.0"
-  }
+    "name": "express-routemagic",
+    "version": "2.0.1",
+    "description": "A simple and fast, fire-and-forget module that all Nodejs+Express app should have, to automatically require all your express routes without bloating your code with `app.use('i/will/repeat/this', require('./i/will/repeat/this')`. 把 Express 路由图给自动化。",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha './test/' --recursive --exit",
+        "cover": "istanbul cover _mocha -- './test/' --recursive --exit",
+        "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/calvintwr/express-routemagic.git"
+    },
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "keywords": [
+        "express",
+        "router",
+        "automatic",
+        "require",
+        "express route magic",
+        "express-routemagic",
+        "路由",
+        "路由图"
+    ],
+    "author": "calvintwr",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/calvintwr/express-routemagic/issues"
+    },
+    "homepage": "https://github.com/calvintwr/express-routemagic#readme",
+    "dependencies": {},
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "coveralls": "^3.1.0",
+        "istanbul": "^0.4.5",
+        "mocha": "^7.1.2",
+        "mocha-lcov-reporter": "^1.3.0"
+    },
+    "files": [
+        "index.js",
+        "lib"
+    ]
 }

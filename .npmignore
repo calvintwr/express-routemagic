@@ -1,6 +1,0 @@
-.git*
-test/
-build/
-lib-cov/
-.travis.yml
-.DS_Store
