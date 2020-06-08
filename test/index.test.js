@@ -71,7 +71,7 @@ describe('toIgnore', () => {
     magic_toIgnore.ignoreSuffix = ['ignore', 'dev']
     it('should be false when payload matches', () => {
         magic_toIgnore.toIgnore('ignore', true).should.be.true
-        magic_toIgnore.toIgnore('dev').should.be.true
+        magic_toIgnore.toIgnore('dev.ts').should.be.true
         magic_toIgnore.toIgnore('dev.js').should.be.true
     })
     it('should be true when payload don\'t match', () => {
@@ -118,8 +118,14 @@ describe('apiDirectory', () => {
 })
 
 describe('apiPath', () => {
-    it('should out correct apiPath', () => {
+    it('should out correct apiPath for non-index files', () => {
         magic.apiPath('bar.js', '/api').should.equal('/api/bar')
+        magic.apiPath('bar.ts', '/api').should.equal('/api/bar')
+        magic.apiPath('index.ts', '/api').should.equal('/api')
+    })
+    it('should out correct apiPath for index files', () => {
+        magic.apiPath('index.ts', '/api').should.equal('/api')
+        magic.apiPath('index.js', '/api').should.equal('/api')
     })
 })
 

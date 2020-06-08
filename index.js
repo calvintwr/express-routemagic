@@ -1,5 +1,5 @@
 /*!
- * Express Route-Magic v2.0.1
+ * Express Route-Magic v2.0.2
  * (c) 2020 Calvin Tan
  * Released under the MIT License.
  */
@@ -138,10 +138,13 @@ Magic.scan = function(directory) {
         }
 
         // js files
-        return (file.indexOf('.js') === file.length - '.js'.length)
+        return (
+            (file.indexOf('.js') === file.length - '.js'.length) ||
+            (file.indexOf('.ts') === file.length - '.ts'.length)
+        )
 
     }).forEach(file => {
-        if (file === 'index.js') {
+        if (['index.js', 'index.ts'].indexOf(file) > -1) {
             _files.unshift(file)
         } else {
             this.push(_files, file)
@@ -164,7 +167,7 @@ Magic.push = function(array, payload, isDirectory) {
 }
 
 Magic.toIgnore = function(payload, isDirectory) {
-    if (!isDirectory) payload = payload.replace('.js', '')
+    if (!isDirectory) payload = payload.substring(0, payload.length - 3) // remove the extension
     let toIgnore = false
     if (this.ignoreSuffix) {
         this.ignoreSuffix.forEach(suffix => {
@@ -180,7 +183,7 @@ Magic.toIgnore = function(payload, isDirectory) {
 Magic.checkConflict = function(files, folders, directory) {
     if (this.allowSameName) return false
     files.forEach(file => {
-        if (folders.indexOf(file.replace('.js', '')) !== -1) throw new Error(`Folder and file with conflict name: \`${file.replace('.js', '')}\` in directory: \`${directory}\`.`)
+        if (folders.indexOf(file.substring(0, file.length - 3)) !== -1) throw new Error(`Folder and file with conflict name: \`${file.substring(0, file.length - 3)}\` in directory: \`${directory}\`.`)
     })
 }
 
@@ -201,7 +204,7 @@ Magic.apiPath = function(file, apiDir) {
     // TODO: To support passing array to
     // have to check whether the apiDir have any commas. if yes can indicate a ['/route1', '/route2'] kind.
     // also need to check if file have any commans. if yes can indicate a ['/route1/filename1', '/route2/filename1', '/route1/filename2', '/route2/filename2'] kind of situation.
-    return (file === 'index.js') ? apiDir : path.join(apiDir, file.replace('.js', ''))
+    return (['index.js', 'index.ts'].indexOf(file) > -1) ? apiDir : path.join(apiDir, file.substring(0, file.length - 3))
 }
 Magic.absolutePathToRoutesFolder = function() {
     return path.join(this.invokerPath, this.routesFolder)
