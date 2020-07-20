@@ -1,4 +1,5 @@
 # Route Magic
+<img src="https://user-images.githubusercontent.com/6825277/87935044-e6086f00-cac2-11ea-91ac-bee5709f06a4.png" height="400">
 [![npm version](https://img.shields.io/npm/v/express-routemagic.svg?style=flat-square)](https://www.npmjs.com/package/express-routemagic)
 [![Build Status](https://badgen.net/travis/calvintwr/express-routemagic?style=flat-square)](https://travis-ci.com/calvintwr/express-routemagic)
 [![Coverage Status](https://badgen.net/coveralls/c/github/calvintwr/express-routemagic?style=flat-square)](https://coveralls.io/r/calvintwr/express-routemagic)
