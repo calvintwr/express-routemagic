@@ -191,7 +191,10 @@ Magic.require = function(dir, files) {
     let apiDirectory = this.apiDirectory(dir)
     files.forEach(file => {
         let apiPath = this.apiPath(file, apiDirectory)
-        this.app.use(apiPath, require(this.absolutePathFile(dir, file)))
+        let route = require(this.absolutePathFile(dir, file))
+        // ES6 export defauly compatibility
+        if (typeof route !== 'function') route = route.default
+        this.app.use(apiPath, route)
         if (this.logMapping) this.debug(apiPath + ' => .' + this.pathRelativeToInvoker(dir, file))
     })
 }
