@@ -36,6 +36,9 @@ import magic from 'express-routemagic'
 magic.use(app)
 ```
 
+That's it! Continue to code everything else and let Magic take care of requiring your routes.
+(Note: Scroll to bottom for much more options.)
+
 ## Prologue
 The author's express app was simple at first. Right out of the box, everything seemed complete, nothing more was desired. But very quickly, it grew, and something felt amiss: the oddly familiar muscle reflex in performing ctrl c and p...
 
