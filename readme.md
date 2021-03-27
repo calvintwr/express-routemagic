@@ -22,14 +22,19 @@ For example, go [here](https://github.com/calvintwr/express-routemagic-eg).
 
 ## Usage
 
+### Require syntax
 ```js
 // this file is app.js
 const magic = require('express-routemagic')
 magic.use(app)
 // Note: this assumes your routing files to be in `./routes` relative to the ROOT of your nodejs app.
 ```
-That's it! Continue to code everything else and let Magic take care of requiring your routes.
-(Note: Scroll to bottom for much more options.)
+
+### ES6 syntax
+```js
+import magic from 'express-routemagic'
+magic.use(app)
+```
 
 ## Prologue
 The author's express app was simple at first. Right out of the box, everything seemed complete, nothing more was desired. But very quickly, it grew, and something felt amiss: the oddly familiar muscle reflex in performing ctrl c and p...

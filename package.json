@@ -1,6 +1,6 @@
 {
     "name": "express-routemagic",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "A simple and fast, fire-and-forget module that all Nodejs+Express app should have, to automatically require all your express routes without bloating your code with `app.use('i/will/repeat/this', require('./i/will/repeat/this')`. 把 Express 路由图给自动化。",
     "main": "index.js",
     "scripts": {
