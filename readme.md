@@ -48,7 +48,7 @@ app.use('/somePath', require('./routes/somePath'))
 app.use('/i/keep/repeating/myself', require('./routes/i/keep/repeating/myself'))
 //... and many more lines of repetitive code...
 ```
-With every line, came the thought: “It's just one more”. But that didn't end; only to inevitably converge the dissonances into a crescendo:
+With every line, came the thought: “It's just one more”. But that didn't end; and the dissonances inevitably converge into a crescendo:
 
 >This doesn't make sense anymore.
 
