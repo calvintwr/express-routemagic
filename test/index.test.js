@@ -8,8 +8,8 @@ const path = require('path')
 describe('routesFolder', () => {
     let magic_routesFolder = Object.create(magic)
     it('should remove trailing slash', () => {
-        magic_routesFolder.routesFolder = './my/routes/folder/'
-        magic_routesFolder.routesFolder.should.equal('./my/routes/folder')
+        magic_routesFolder.routesFolder = path.normalize('./my/routes/folder/')
+        magic_routesFolder.routesFolder.should.equal(path.normalize('./my/routes/folder'))
     })
 })
 
@@ -101,19 +101,19 @@ describe('checkConflict', () => {
 describe('apiDirectory', () => {
     let magic_apiDir = Object.create(magic)
     it('should out correct api directory', () => {
-        magic_apiDir.invokerPath = '/with/trailing/slash/'
-        magic_apiDir.routesFolder = './with/dot-slash/'
-        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/my-api-folder').should.equal('/my-api-folder')
+        magic_apiDir.invokerPath = path.normalize('/with/trailing/slash/')
+        magic_apiDir.routesFolder = path.normalize('./with/dot-slash/')
+        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/my-api-folder').should.equal(path.normalize('/my-api-folder'))
     })
     it('should out correct api directory without trailling slash', () => {
-        magic_apiDir.invokerPath = '/with/trailing/slash/'
-        magic_apiDir.routesFolder = './with/dot-slash/'
-        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/my-api-folder/').should.equal('/my-api-folder')
+        magic_apiDir.invokerPath = path.normalize('/with/trailing/slash/')
+        magic_apiDir.routesFolder = path.normalize('./with/dot-slash/')
+        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/my-api-folder/').should.equal(path.normalize('/my-api-folder'))
     })
     it('should out correct api directory `/` for outermost index.js file', () => {
-        magic_apiDir.invokerPath = '/with/trailing/slash/'
-        magic_apiDir.routesFolder = './with/dot-slash/'
-        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/').should.equal('/')
+        magic_apiDir.invokerPath = path.normalize('/with/trailing/slash/')
+        magic_apiDir.routesFolder = path.normalize('./with/dot-slash/')
+        magic_apiDir.apiDirectory('/with/trailing/slash/with/dot-slash/').should.equal(path.normalize('/'))
     })
 })
 
@@ -132,27 +132,27 @@ describe('apiPath', () => {
 describe('absolutePathToRoutesFolder', () => {
     let magic_absPath = Object.create(magic)
     it('should out correct absolute path -1', () => {
-        magic_absPath.invokerPath = '/with/trailing/slash/'
-        magic_absPath.routesFolder = './with/dot-slash/'
-        magic_absPath.absolutePathToRoutesFolder().should.equal('/with/trailing/slash/with/dot-slash')
+        magic_absPath.invokerPath = path.normalize('/with/trailing/slash/')
+        magic_absPath.routesFolder = path.normalize('./with/dot-slash/')
+        magic_absPath.absolutePathToRoutesFolder().should.equal(path.normalize('/with/trailing/slash/with/dot-slash'))
     })
     it('should out correct absolute path -2', () => {
-        magic_absPath.invokerPath = '/without/trailing/slash'
-        magic_absPath.routesFolder = '../with/dot-dot'
-        magic_absPath.absolutePathToRoutesFolder().should.equal('/without/trailing/with/dot-dot')
+        magic_absPath.invokerPath = path.normalize('/without/trailing/slash')
+        magic_absPath.routesFolder = path.normalize('../with/dot-dot')
+        magic_absPath.absolutePathToRoutesFolder().should.equal(path.normalize('/without/trailing/with/dot-dot'))
     })
 })
 
 describe('absolutePathFile', () => {
     it('should out correct relative path', () => {
-        magic.absolutePathFile('dir', 'file.js').should.equal('dir/file.js')
+        magic.absolutePathFile('dir', 'file.js').should.equal(path.normalize('dir/file.js'))
     })
 })
 
 describe('pathRelativeToInvoker', () => {
     let magic_pathRelative = Object.create(magic)
     it('should out correct relative path', () => {
-        magic_pathRelative.invokerPath = '/app-folder/invoker/'
-        magic_pathRelative.pathRelativeToInvoker('/app-folder/routes/dir', 'file.js').should.equal('../routes/dir/file.js')
+        magic_pathRelative.invokerPath = path.normalize('/app-folder/invoker/')
+        magic_pathRelative.pathRelativeToInvoker('/app-folder/routes/dir', 'file.js').should.equal(path.normalize('../routes/dir/file.js'))
     })
 })

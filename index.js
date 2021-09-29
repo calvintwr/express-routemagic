@@ -1,6 +1,6 @@
 /*!
- * Express Route-Magic v2.0.2
- * (c) 2020 Calvin Tan
+ * Express Route-Magic v2.0.6
+ * (c) 2021 Calvin Tan
  * Released under the MIT License.
  */
 'use strict'
@@ -41,7 +41,7 @@ Object.defineProperties(Magic, {
         set(val) {
             let fail = hlp.argFail('string', val, 'routesFolder', 'This value defaults to \'routes\'. If you change your folder structure to follow you won\'t need this option.')
             if (fail) throw new Error(fail)
-            if (val[val.length - 1] === '/') val = val.substring(0, val.length - 1)
+            if (val[val.length - 1] === '/' || val[val.length - 1] === '\\') val = val.substring(0, val.length - 1)
             this._routesFolder = val
         }
     },
@@ -93,12 +93,13 @@ Object.defineProperties(Magic, {
 
 // methods
 Magic.use = function(app, relativeRoutesFolderOrOptions) {
+
     if (!app) throw new Error('Invalid argument: Express `app` instance must be passed in as 1st argument.')
     this.app = app
 
     if (!hlp.argFail('string', relativeRoutesFolderOrOptions)) {
 
-        this.routesFolder = relativeRoutesFolderOrOptions
+        this.routesFolder = path.normalize(relativeRoutesFolderOrOptions)
 
     } else if (!hlp.argFail('object', relativeRoutesFolderOrOptions)) {
 
@@ -106,6 +107,9 @@ Magic.use = function(app, relativeRoutesFolderOrOptions) {
 
         // may need debugging module downstream, so assign first.
         if (options.debug) this.debug = options.debug
+
+        if (relativeRoutesFolderOrOptions.routesFolder) relativeRoutesFolderOrOptions.routesFolder = path.normalize(relativeRoutesFolderOrOptions.routesFolder)
+        if (relativeRoutesFolderOrOptions.invokerPath) relativeRoutesFolderOrOptions.invokerPath = path.normalize(relativeRoutesFolderOrOptions.invokerPath)
 
         hlp.applyOpts(this, options, [
             'routesFolder',
@@ -132,7 +136,7 @@ Magic.scan = function(directory) {
         if (file.indexOf('.') === 0) return false
 
         // directory
-        if (fs.lstatSync(directory + '/' + file).isDirectory()) {
+        if (fs.lstatSync(path.join(directory, '/', file)).isDirectory()) {
             this.push(_folders, file, true)
             return false
         }
@@ -158,7 +162,7 @@ Magic.scan = function(directory) {
 
     // scan folders
     _folders.forEach(folder => {
-        this.scan(directory + '/' + folder)
+        this.scan(path.join(directory, '/', folder))
     })
 }
 
@@ -201,13 +205,16 @@ Magic.require = function(dir, files) {
 
 Magic.apiDirectory = function(dir) {
     let apiDir = path.relative(this.absolutePathToRoutesFolder(), dir)
-    return (apiDir.length === 0) ? '/' : '/' + apiDir
+    return (apiDir.length === 0) ? path.normalize('/') : path.normalize(path.join('/', apiDir))
 }
 Magic.apiPath = function(file, apiDir) {
+    apiDir = path.normalize(apiDir)
     // TODO: To support passing array to
     // have to check whether the apiDir have any commas. if yes can indicate a ['/route1', '/route2'] kind.
     // also need to check if file have any commans. if yes can indicate a ['/route1/filename1', '/route2/filename1', '/route1/filename2', '/route2/filename2'] kind of situation.
-    return (['index.js', 'index.ts'].indexOf(file) > -1) ? apiDir : path.join(apiDir, file.substring(0, file.length - 3))
+    let apiPath = (['index.js', 'index.ts'].indexOf(file) > -1) ? apiDir : path.join(apiDir, file.substring(0, file.length - 3))
+    apiPath = apiPath.replace(/\\/g, '/')
+    return apiPath
 }
 Magic.absolutePathToRoutesFolder = function() {
     return path.join(this.invokerPath, this.routesFolder)
